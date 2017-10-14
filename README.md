@@ -13,6 +13,8 @@ Convert document to PDF with Microsoft Office application suite
 
 ### Remarks
 
+Creates and removes temporary file inside ``application_darwin_temp_dir`` of ``Container.plist`` if ``MicrosoftBuildNumber`` is ``15`` or above.
+
 Only tested with Microsoft Excel 2016.
 
 ---

@@ -27,3 +27,70 @@ Parameter|Type|Description
 ------------|------------|----
 src|TEXT|path (HFS)
 dst|TEXT|path (HFS)
+
+### Discussion
+
+There are mainly 2 ways to call AppleScript from Objective C; ``NSAppleScript`` and ``SBApplication``.
+
+To use ScriptingBridge, one must first create a header file from the scripting definition inside the scriptable target app with ``sdef`` and ``sdp``. Normally the calls can be piped, but the definition for Word and PowerPoint seems to contain errors, so one must first export the file to disk and manually edit in order to generate the full header file.
+
+```
+sdef Word.app > word.sdef
+sdp --basename Word -fh Word.sdef Word.h
+```
+
+Excel seems to work with either method. The code expressed in AppleScript looks like this:
+
+```applescript
+on convert_to_pdf(src_path, dst_path)
+set src_path to POSIX file src_path as string
+set dst_path to POSIX file dst_path as string
+tell application id "com.microsoft.Excel"
+set w to open workbook workbook file name src_path ¬
+with read only and ignore read only recommended without notify and add to mru
+try
+save workbook as w filename dst_path file format PDF file format ¬
+conflict resolution other session changes with overwrite without read only recommended, create backup and add to most recently used list
+end try
+close w saving no
+end tell
+end convert_to_pdf
+``` 
+
+Notice the 2 lines outside of the call to Excel, used to convert POSIX path to HFS. The same sequence of calls work over the ScriptingBridge too, but Excel 2011 only accepts HFS paths, while Excel 2016 accepts either HFS or POSIX paths.
+
+The ``open``, ``save as`` and ``close`` commands for Word and PowerPoint do not seem to work over the ScriptingBridge. ``NSAppleScript`` can be used as a workaround.
+
+For Word, there is a specialised ``open`` command that returns a document.
+
+```applescript
+on convert_to_pdf(src_path, dst_path) 
+set src_path to POSIX file src_path as string 
+set dst_path to POSIX file dst_path as string 
+tell application id "com.microsoft.Word" 
+set d to open file name src_path ¬
+with read only and Revert without add to recent files and confirm conversions 
+save as d file name dst_path file format format PDF ¬
+with embed truetype fonts, save native picture format and save forms data without add to recent files 
+close d saving no saving in src_path 
+end tell  
+end convert_to_pd
+```
+
+For PowerPoint, there is no specialised ``open`` command that returns a presentation object, so we need to iterate the list of presentations to get what was just opened.
+
+```applescript
+on convert_to_pdf(src_path, dst_path) 
+set src_path to POSIX file src_path as string 
+set dst_path to POSIX file dst_path as string 
+tell application id "com.microsoft.PowerPoint" 
+open src_path 
+set pp to presentations whose full name is src_path 
+if (count pp) is 1 then 
+set p to item 1 of pp 
+save p in dst_path as save as PDF 
+close p saving no saving in src_path 
+end if 
+end tell 
+end convert_to_pdf
+```

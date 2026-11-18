@@ -140,10 +140,11 @@ NSString *getHFSPath(NSURL *url)
     NSString *path = @"";
     if(url)
     {
-        NSString *_path = (NSString *)CFURLCopyFileSystemPath((CFURLRef)url, kCFURLHFSPathStyle);
+        CFStringRef _path = CFURLCopyFileSystemPath((CFURLRef)url, kCFURLHFSPathStyle);
         if(_path)
         {
-            path = [NSString stringWithString:_path];
+            path = [NSString stringWithString:(NSString *)_path];
+            CFRelease(_path);
         }
     }
     

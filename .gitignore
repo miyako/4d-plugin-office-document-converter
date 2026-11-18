@@ -1,0 +1,6 @@
+.DS_Store
+build/
+*.4dbase/Logs/
+*.4dbase/userPreferences.*/
+Office.4dbase/Plugins/Office.bundle/Contents/MacOS/Office
+Office.4dbase/Plugins/Office.bundle/Contents/_CodeSignature/

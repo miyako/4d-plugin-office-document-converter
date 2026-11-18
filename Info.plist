@@ -14,8 +14,10 @@
 	<string>4DCB</string>
 	<key>CFBundleSignature</key>
 	<string>4D06</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>14.3</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 </dict>
